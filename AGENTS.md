@@ -23,7 +23,18 @@
 
 ## PR
 * PRのタイトルは日本語で記述すること
-* PRのボディは日本語で詳細の変更点、変更理由、対象Issue・コード、記述すること
+* PRのボディは日本語で詳細の変更点、変更理由、対象Issue・コードを詳細に記述すること
+* PRはのベースブランチはdevとし、mainには絶対にマージしないこと。mainはいかなる際もユーザーの指示なしにマージ、編集しないこと。
+* PRは必ずチェックリストを埋めてから提出すること
+* PRのチェックリストはユーザーがチェックリストを修正した場合、そのチェックリストに従うこと
+
+## Issues
+* Issuesのタイトルは日本語で記述すること
+* Issuesのボディは日本語で詳細の変更点、変更理由、対象Issue・コードを詳細に記述すること
+* Issueには適宜関連するタグ（enhancement, bug, documentation, task,など）を付けること
+* Issueのステータスは適宜更新すること
+* priorityを適切に設定すること
+* priorityはHighest, High, Medium, Lowのいずれかを使用すること
 
 ## subagents
 * subagentsを使用する際のモデルは必ずClaude Opus又はSonnet、Gemini Pro、Flashのどれかを使用し、それ以外のモデルは使用しないこと。
