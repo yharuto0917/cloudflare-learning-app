@@ -5,3 +5,7 @@ node_modules
 dist
 pnpm-lock.yaml
 package-lock.json
+
+# wrangler types で生成される型定義(タブ整形のため除外)
+apps/web/cloudflare-env.d.ts
+workers/demos/worker-configuration.d.ts
