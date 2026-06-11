@@ -16,13 +16,13 @@ importers:
         version: 3.8.4
       wrangler:
         specifier: ^4.86.0
-        version: 4.99.0
+        version: 4.99.0(@cloudflare/workers-types@4.20260610.1)
 
   apps/web:
     dependencies:
       '@opennextjs/cloudflare':
         specifier: ^1.19.9
-        version: 1.19.11(next@16.2.6(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.99.0)
+        version: 1.19.11(next@16.2.6(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.99.0(@cloudflare/workers-types@4.20260610.1))
       next:
         specifier: 16.2.6
         version: 16.2.6(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -62,7 +62,23 @@ importers:
         version: 5.9.3
       wrangler:
         specifier: ^4.99.0
-        version: 4.99.0
+        version: 4.99.0(@cloudflare/workers-types@4.20260610.1)
+
+  workers/demos:
+    dependencies:
+      hono:
+        specifier: ^4.6.14
+        version: 4.12.25
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20241224.0
+        version: 4.20260610.1
+      typescript:
+        specifier: ^5.7.4
+        version: 5.9.3
+      wrangler:
+        specifier: ^4.99.0
+        version: 4.99.0(@cloudflare/workers-types@4.20260610.1)
 
 packages:
 
@@ -427,6 +443,9 @@ packages:
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
+
+  '@cloudflare/workers-types@4.20260610.1':
+    resolution: {integrity: sha512-Mk/f3lUygeIHzQ4HnJjU/JvGg/kllgp9gISty9nylHE/2M2MFeKO+hgAKSgiPpmwUbuhewdYGgqFGgT/ADK0/g==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -2373,6 +2392,10 @@ packages:
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
+  hono@4.12.25:
+    resolution: {integrity: sha512-2NFaIyNVgJmBs/ecmtGzlmluTFs5cHEWGTdu0t1HBwYzoGXOL5nUQBRMXsXWla5i4KkG//QMzVP88m1+I3fdAQ==}
+    engines: {node: '>=16.9.0'}
+
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
     engines: {node: '>= 0.8'}
@@ -4224,6 +4247,8 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260609.1':
     optional: true
 
+  '@cloudflare/workers-types@4.20260610.1': {}
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -4706,7 +4731,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opennextjs/cloudflare@1.19.11(next@16.2.6(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.99.0)':
+  '@opennextjs/cloudflare@1.19.11(next@16.2.6(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.99.0(@cloudflare/workers-types@4.20260610.1))':
     dependencies:
       '@ast-grep/napi': 0.40.5
       '@dotenvx/dotenvx': 1.31.0
@@ -4718,7 +4743,7 @@ snapshots:
       glob: 12.0.0
       next: 16.2.6(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       ts-tqdm: 0.8.6
-      wrangler: 4.99.0
+      wrangler: 4.99.0(@cloudflare/workers-types@4.20260610.1)
       yargs: 18.0.0
     transitivePeerDependencies:
       - encoding
@@ -6225,6 +6250,8 @@ snapshots:
     dependencies:
       hermes-estree: 0.25.1
 
+  hono@4.12.25: {}
+
   http-errors@2.0.1:
     dependencies:
       depd: 2.0.0
@@ -7355,7 +7382,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20260609.1
       '@cloudflare/workerd-windows-64': 1.20260609.1
 
-  wrangler@4.99.0:
+  wrangler@4.99.0(@cloudflare/workers-types@4.20260610.1):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260609.1)
@@ -7366,6 +7393,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20260609.1
     optionalDependencies:
+      '@cloudflare/workers-types': 4.20260610.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
