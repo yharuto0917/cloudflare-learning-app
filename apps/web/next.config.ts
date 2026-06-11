@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // pnpm モノレポのルートを明示する。
+  // 未指定だと Next.js がホーム配下の stray な pnpm-lock.yaml を
+  // ワークスペースルートと誤検出して警告を出すため。
+  turbopack: {
+    root: path.join(__dirname, "..", ".."),
+  },
 };
 
 export default nextConfig;
