@@ -1,0 +1,16 @@
+# このサイトのアーキテクチャ解説
+
+この学習サイト自体が、Cloudflare の様々な機能を組み合わせて構築されたフルスタックアプリケーションです。
+
+## 技術スタックの構成
+
+- **フロントエンド**: Next.js (App Router) + OpenNext
+- **バックエンド API**: Hono Worker
+- **データベース**: D1 + Drizzle ORM
+- **オブジェクトストレージ**: R2
+- **Durable Objects**: チャット/アラーム等
+
+```ts
+// Next.js からの Hono 呼び出しイメージ
+const res = await env.DEMOS.fetch(new Request("http://demos/health"));
+```

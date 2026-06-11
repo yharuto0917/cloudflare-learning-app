@@ -1,16 +1,31 @@
 import type { NextConfig } from "next";
 import path from "node:path";
+import createMDX from "@next/mdx";
 
 const nextConfig: NextConfig = {
-  // pnpm モノレポのルートを明示する。
-  // 未指定だと Next.js がホーム配下の stray な pnpm-lock.yaml を
-  // ワークスペースルートと誤検出して警告を出すため。
+  pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
   turbopack: {
     root: path.join(__dirname, "..", ".."),
   },
 };
 
-export default nextConfig;
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [["remark-gfm", {}]],
+    rehypePlugins: [
+      [
+        "rehype-pretty-code",
+        {
+          theme: "github-dark-default",
+          keepBackground: false,
+          defaultLang: "ts",
+        },
+      ],
+    ],
+  },
+});
+
+export default withMDX(nextConfig);
 
 // Enable calling `getCloudflareContext()` in `next dev`.
 // See https://opennext.js.org/cloudflare/bindings#local-access-to-bindings.
