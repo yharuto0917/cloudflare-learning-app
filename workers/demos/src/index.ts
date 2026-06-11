@@ -1,13 +1,9 @@
 import { Hono } from "hono";
 
-type Bindings = {
-  // Bindings will be added here
-};
-
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Env }>();
 
 app.get("/health", (c) => {
-  return c.json({ status: "ok", timestamp: new Date().toISOString() });
+  return c.json({ ok: true, worker: "cf-stack-lab-demos" });
 });
 
 export default app;
