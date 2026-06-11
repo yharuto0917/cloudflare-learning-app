@@ -1,6 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import React from "react";
-import { CodeBlock } from "./components/CodeBlock";
+import { CodeBlock } from "./components/code-block";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {

@@ -245,8 +245,14 @@ export function prevNext(moduleSlug: string, lessonSlug: string) {
   };
 }
 
-export function publishedLessonCount(moduleId: string): number {
+/** モジュール別の公開(非 draft)レッスン数 */
+export function modulePublishedLessonCount(moduleId: string): number {
   const mod = registry.find((m) => m.id === moduleId);
   if (!mod) return 0;
   return mod.lessons.filter((l) => !l.draft).length;
+}
+
+/** サイト全体の公開(非 draft)レッスン総数(P13 の全公開チェック用。全 draft 解除で 53) */
+export function publishedLessonCount(): number {
+  return getPublishedLessons().length;
 }
