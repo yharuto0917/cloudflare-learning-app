@@ -1,0 +1,16 @@
+# Cloudflare 開発者プラットフォーム全体像
+
+Cloudflare の開発者プラットフォームは、グローバルエッジネットワーク上で超高速にコードを実行するために設計されています。
+
+## V8 Isolate vs VM/Container
+
+従来のサーバーレス（AWS Lambdaなど）やコンテナ（Docker）と異なり、Cloudflare Workers は V8 Isolate 技術を使用しています。
+
+```ts
+// 例: シンプルな Worker の fetch ハンドラー
+export default {
+  async fetch(request, env, ctx) {
+    return new Response("Hello, Cloudflare!");
+  },
+};
+```
