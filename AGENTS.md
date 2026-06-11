@@ -17,7 +17,8 @@
 - プロダクションはmainブランチとする
 - 開発はdevブランチよりそれぞれブランチを切って行う。
 - 不要になったローカル、リモートブランチは適宜削除する。
-- ブランチ名は"add: README.md", "edit: cloudflare workers phasesの実装", "fix: テストエラー修正" のように、"操作: 対象ファイル" の形式でわかりやすくする。
+- ブランチ名は"feat/readme", "docs/cloudflare-workers-get-started", "fix/worker-error-fix" のように、"操作種別/内容" の形式でわかりやすくする。
+- AI Agentの場合は "claude/feat/phase1", "gemini/feat/phase2" のように、"AIモデル名/操作種別/内容" の形式でわかりやすくする。
 - PRはのベースブランチはdevとし、mainには絶対にマージしないこと。mainはいかなる際もユーザーの指示なしにマージ、編集しないこと。
 
 ## git commit messages
