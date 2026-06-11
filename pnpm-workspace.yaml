@@ -5,3 +5,6 @@ allowBuilds:
   esbuild: true
   workerd: true
   sharp: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - "@types/node@20.19.43"
