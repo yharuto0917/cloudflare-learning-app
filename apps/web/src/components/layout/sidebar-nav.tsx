@@ -9,7 +9,7 @@ import { useSidebar } from "./sidebar-provider";
 // モジュール→レッスンのツリー本体。デスクトップ常設・モバイルドロワーの両方で使い回す。
 function NavTree({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const { isDone } = useProgress();
+  const { isDone, ready } = useProgress();
 
   return (
     <nav className="space-y-6 p-4">
@@ -33,7 +33,8 @@ function NavTree({ onNavigate }: { onNavigate?: () => void }) {
 
               const href = lessonHref(module.slug, lesson.slug);
               const isActive = pathname === href;
-              const done = isDone(module.id, index);
+              // hydration 完了まで未完了で描画(SSR との不整合回避)
+              const done = ready && isDone(module.id, index);
 
               return (
                 <li key={lesson.slug}>

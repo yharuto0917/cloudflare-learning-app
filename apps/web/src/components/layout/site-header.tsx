@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { firstLessonHref } from "../../content/registry";
 import { useSidebar } from "./sidebar-provider";
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const { toggle } = useSidebar();
+  const { toggle, close } = useSidebar();
   const isLearn = pathname?.startsWith("/learn") ?? false;
 
   return (
@@ -34,7 +35,13 @@ export function SiteHeader() {
           </button>
         )}
 
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+        {/* ドロワーを開いたままヘッダー経由で遷移すると open が残るため、明示的に閉じる
+            (sidebar-provider の方針どおり effect 内 setState ではなく onClick で閉じる) */}
+        <Link
+          href="/"
+          onClick={close}
+          className="flex items-center gap-2 font-semibold tracking-tight"
+        >
           <span className="grid h-7 w-7 place-items-center rounded bg-accent text-sm font-bold text-black">
             CF
           </span>
@@ -43,7 +50,8 @@ export function SiteHeader() {
 
         <nav className="ml-auto flex items-center gap-4 text-sm">
           <Link
-            href="/learn/intro/platform-overview"
+            href={firstLessonHref()}
+            onClick={close}
             className="text-neutral-400 transition-colors hover:text-neutral-100"
           >
             学習を始める

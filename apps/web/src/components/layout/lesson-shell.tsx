@@ -8,7 +8,7 @@ import { useProgress } from "../../hooks/use-progress";
 
 export function LessonShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { isDone, toggle } = useProgress();
+  const { isDone, toggle, ready } = useProgress();
 
   const info = pathname ? findLesson(pathname) : null;
 
@@ -18,7 +18,9 @@ export function LessonShell({ children }: { children: ReactNode }) {
   }
 
   const { module, lesson, lessonIndex } = info;
-  const done = isDone(module.id, lessonIndex);
+  // hydration 完了(ready)までは ModuleCard 等と揃えて未完了で描画し、
+  // SSR スナップショット(進捗0)との不整合を確実に避ける。
+  const done = ready && isDone(module.id, lessonIndex);
   const { prev, next } = prevNext(module.slug, lesson.slug);
 
   return (
@@ -43,10 +45,8 @@ export function LessonShell({ children }: { children: ReactNode }) {
         {/* タイトル(registry が単一ソース。MDX には h1 を書かない) */}
         <h1 className="mb-8 text-3xl font-bold tracking-tight text-neutral-50">{lesson.title}</h1>
 
-        {/* 本文(MDX) */}
-        <article className="text-neutral-300 [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-neutral-100 [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-neutral-100 [&_p]:my-4 [&_p]:leading-relaxed [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:my-1 [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-2 [&_code]:rounded [&_code]:bg-neutral-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:text-neutral-200">
-          {children}
-        </article>
+        {/* 本文(MDX)。要素スタイルは globals.css の @utility mdx-content に集約 */}
+        <article className="mdx-content text-neutral-300">{children}</article>
 
         {/* 完了トグル */}
         <div className="mt-12 flex justify-center border-t border-neutral-800 pt-8">

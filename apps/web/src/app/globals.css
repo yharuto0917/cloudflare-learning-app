@@ -24,3 +24,29 @@ body {
     var(--font-sans), "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo,
     sans-serif;
 }
+
+/* MDX 本文の要素スタイル。LessonShell の <article> に並んでいた長大な
+   任意値セレクタ([&_h2]:... 等)を切り出し、JSX の見通しと再利用性を確保する。 */
+@utility mdx-content {
+  & h2 {
+    @apply mt-10 mb-3 text-xl font-semibold text-neutral-100;
+  }
+  & h3 {
+    @apply mt-6 mb-2 text-lg font-semibold text-neutral-100;
+  }
+  & p {
+    @apply my-4 leading-relaxed;
+  }
+  & ul {
+    @apply my-4 list-disc pl-6;
+  }
+  & li {
+    @apply my-1;
+  }
+  & a {
+    @apply text-accent underline underline-offset-2;
+  }
+  & code {
+    @apply rounded bg-neutral-800 px-1.5 py-0.5 text-sm text-neutral-200;
+  }
+}

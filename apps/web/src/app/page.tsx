@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { registry, lessonHref } from "../content/registry";
+import { registry, firstLessonHref } from "../content/registry";
 import { ModuleCard } from "../components/layout/module-card";
 import { OverallProgress } from "../components/layout/overall-progress";
 
@@ -20,7 +20,7 @@ export default function Home() {
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link
-            href={lessonHref("intro", "platform-overview")}
+            href={firstLessonHref()}
             className="rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-black transition-opacity hover:opacity-90"
           >
             学習を始める
