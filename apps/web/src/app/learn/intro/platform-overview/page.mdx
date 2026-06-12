@@ -14,3 +14,42 @@ export default {
   },
 };
 ```
+
+<Callout type="tip" title="なぜ速いのか">
+  V8 Isolate はプロセスや VM より遥かに軽量なため、コールドスタートがほぼゼロになります。これが
+  エッジでの動的実行を現実的にしている要です。
+</Callout>
+
+## 理解度チェック
+
+<Quiz
+  questions={[
+    {
+      question: "Cloudflare Workers が分離に使用している技術は？",
+      options: ["コンテナ", "V8 Isolate", "仮想マシン (VM)", "WebAssembly のみ"],
+      answer: 1,
+      explanation: "Workers は V8 Isolate を使い、軽量で高速な起動(ほぼゼロのコールドスタート)を実現します。",
+    },
+    {
+      question: "オブジェクトストレージ R2 の大きな特徴は？",
+      options: ["egress(転送)課金が高い", "egress が無料", "SQL 専用ストア", "メモリ上のみで永続化しない"],
+      answer: 1,
+      explanation: "R2 は egress 無料の S3 互換オブジェクトストレージで、転送量の多い用途に向きます。",
+    },
+  ]}
+/>
+
+<DocLinks
+  links={[
+    {
+      href: "https://developers.cloudflare.com/workers/",
+      title: "Cloudflare Workers ドキュメント",
+      description: "Workers の概要と API リファレンス",
+    },
+    {
+      href: "https://developers.cloudflare.com/workers/reference/how-workers-works/",
+      title: "How Workers works",
+      description: "V8 isolate アーキテクチャの解説",
+    },
+  ]}
+/>
