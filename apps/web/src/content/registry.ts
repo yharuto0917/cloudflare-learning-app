@@ -216,6 +216,16 @@ export function lessonHref(moduleSlug: string, lessonSlug: string): string {
   return `/learn/${moduleSlug}/${lessonSlug}`;
 }
 
+/**
+ * 学習導線の起点となる「最初の公開レッスン」への href。
+ * トップ・404・ヘッダーで同じリンク先をハードコードしていたのを一元化し、
+ * 公開順(registry 順)が変わっても各所が追従するようにする。
+ */
+export function firstLessonHref(): string {
+  const first = getPublishedLessons()[0];
+  return first ? lessonHref(first.moduleSlug, first.lessonSlug) : "/";
+}
+
 export function prevNext(moduleSlug: string, lessonSlug: string) {
   const published = getPublishedLessons();
   const currentIndex = published.findIndex(
