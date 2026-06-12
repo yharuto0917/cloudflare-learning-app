@@ -38,7 +38,8 @@ const styles = {
 } as const;
 
 export function Callout({ type = "info", title, children }: CalloutProps) {
-  const style = styles[type];
+  // MDX からは型チェックなしで渡るため、未知の type は info に落とす
+  const style = styles[type] ?? styles.info;
 
   return (
     <div

@@ -64,6 +64,20 @@ function isSecure(): boolean {
   return typeof window !== "undefined" && window.location.protocol === "https:";
 }
 
+// crypto.randomUUID はセキュアコンテキスト(https / localhost)限定。
+// LAN の IP 直打ち(http://192.168.x.x)でのモバイル実機確認などでは未定義のため、
+// 非セキュアでも使える crypto.getRandomValues で UUID v4 を組み立てる。
+function generateVid(): string {
+  if (typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 10xx
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
 export function ProgressProvider({ children }: { children: ReactNode }) {
   // クライアントで true。SSR/初回 hydration では false(getServerSnapshot)。
   const ready = useSyncExternalStore(
@@ -79,7 +93,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   // vid 未発行ならクライアント初回に生成(cookie 書込のみ。setState は呼ばない)。
   useEffect(() => {
     if (!parseVidCookie(getCookieSnapshot())) {
-      document.cookie = serializeVidCookie(crypto.randomUUID(), isSecure());
+      document.cookie = serializeVidCookie(generateVid(), isSecure());
       emitChange();
     }
   }, []);

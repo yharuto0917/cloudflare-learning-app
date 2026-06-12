@@ -16,7 +16,7 @@ interface QuizProps {
   questions: Question[];
 }
 
-export function Quiz({ questions }: QuizProps) {
+export function Quiz({ questions = [] }: QuizProps) {
   const pathname = usePathname();
   const { markDone } = useProgress();
   const [selected, setSelected] = useState<Record<number, number>>({});

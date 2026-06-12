@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { registry } from "../content/registry";
 import {
   parseProgressCookie,
   serializeProgressCookie,
@@ -56,6 +57,14 @@ describe("Progress Bitmask State Management", () => {
 
     progress = setLessonDone(progress, "m0", 0, false); // mask = 4 (100)
     expect(progress).toEqual({ m0: 4 });
+  });
+
+  it("should keep every module within the 31-lesson bitmask limit", () => {
+    // bitmask は 32bit 符号付き整数で扱うため bit index は 0..30 まで。
+    // ここを超える場合は progress.ts を BigInt か配列形式へ移行すること。
+    for (const mod of registry) {
+      expect(mod.lessons.length, `module ${mod.id} exceeds bitmask limit`).toBeLessThanOrEqual(31);
+    }
   });
 
   it("should count done lessons for a module excluding drafts", () => {

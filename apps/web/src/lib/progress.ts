@@ -39,6 +39,9 @@ export function serializeVidCookie(vid: string, secure = false): string {
   return cookie;
 }
 
+// 進捗 bitmask は JS のビット演算(32bit 符号付き整数)で扱うため、
+// 1 モジュールのレッスン数は最大 31(bit index 0..30)。
+// 超える場合は BigInt か配列形式への移行が必要(progress.test.ts で上限を強制)。
 export function isLessonDone(
   progress: Record<string, number>,
   moduleId: string,

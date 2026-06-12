@@ -8,7 +8,7 @@ interface DocLinksProps {
   links: LinkItem[];
 }
 
-export function DocLinks({ links }: DocLinksProps) {
+export function DocLinks({ links = [] }: DocLinksProps) {
   return (
     <div className="my-8">
       <h4 className="text-sm font-semibold text-neutral-400 mb-3 uppercase tracking-wider select-none">
