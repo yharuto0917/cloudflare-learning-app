@@ -32,6 +32,9 @@ importers:
       '@opennextjs/cloudflare':
         specifier: ^1.19.9
         version: 1.19.11(next@16.2.6(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.99.0)
+      hono:
+        specifier: ^4.12.25
+        version: 4.12.25
       next:
         specifier: 16.2.6
         version: 16.2.6(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
