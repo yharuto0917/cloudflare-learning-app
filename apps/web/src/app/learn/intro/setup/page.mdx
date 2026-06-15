@@ -1,11 +1,126 @@
-Cloudflare 開発の第一歩は環境構築です。Wrangler CLI を使用してローカルでの実行やデプロイを行います。
+Cloudflare 開発の第一歩は環境構築です。公式 CLI である **Wrangler**（現行はメジャーバージョン v4）を使い、ローカルでの実行・型生成・デプロイまでを一気通貫で行います。このレッスンでは Wrangler の基本コマンドと、プロジェクトの心臓部である設定ファイルの読み方を押さえます。
 
-## Wrangler の基本コマンド
+## Wrangler のインストールと基本コマンド
+
+Wrangler はプロジェクトの開発依存として導入し、`npx`（または `pnpm exec`）経由で実行するのが推奨です。グローバルインストールに頼らないことで、リポジトリごとにバージョンを固定できます。
 
 ```bash
-# ログイン
+# プロジェクトに開発依存として追加
+pnpm add -D wrangler
+
+# Cloudflare アカウントにログイン(ブラウザが開く)
 npx wrangler login
 
-# ローカル開発サーバーの起動
+# ローカル開発サーバーを起動(既定で Miniflare 上で動作)
 npx wrangler dev
+
+# Cloudflare にデプロイ
+npx wrangler deploy
 ```
+
+`wrangler dev` は実際の Cloudflare ネットワークに接続せず、ローカルの **Miniflare** 上で Workers ランタイムをエミュレートして起動します。KV や R2 などのストレージもローカルにシミュレートされるため、ネットワークなしで素早く反復開発できます。
+
+<Callout type="tip" title="ローカルと本番は別世界">
+  `wrangler dev` のローカルストレージは本番リソースとは独立しています。ローカルに put
+  したデータが本番に現れることはなく、その逆もありません。本番データを参照したいときだけ `--remote`
+  を付けて実行します。
+</Callout>
+
+## 設定ファイル wrangler.jsonc
+
+Worker の構成は `wrangler.jsonc`（JSON with Comments。従来の `wrangler.toml` でも可）に集約します。最小構成は `name` / `main` / `compatibility_date` の3キーで、これに加えて Node.js 互換のための `compatibility_flags` を指定しています。
+
+```jsonc
+{
+  // Worker の名前(デプロイ先のサブドメインにもなる)
+  "name": "cf-stack-lab-demos",
+  // エントリーポイント
+  "main": "src/index.ts",
+  // 互換性の基準日。ランタイムの挙動をこの日付に固定する
+  "compatibility_date": "2025-01-01",
+  // Node.js 互換 API を有効化するフラグ
+  "compatibility_flags": ["nodejs_compat"],
+}
+```
+
+`compatibility_date` は「いつ時点の Workers ランタイム挙動を使うか」を固定する重要な設定です。日付を上げると新しい挙動を取り込めますが、後方互換が壊れる変更も入るため、意図的に更新します。
+
+## bindings — 外部リソースは env から渡る
+
+Cloudflare の Workers では、KV・R2・D1・Durable Objects・他 Worker への Service Binding といった外部リソースを **bindings** として宣言します。宣言したリソースは、ハードコードした接続文字列ではなく、ハンドラー引数の `env`（Hono では `c.env`）経由で型安全に渡ってきます。
+
+```jsonc
+{
+  "kv_namespaces": [{ "binding": "DEMO_KV", "id": "<namespace-id>" }],
+  "r2_buckets": [{ "binding": "DEMO_BUCKET", "bucket_name": "demo-assets" }],
+}
+```
+
+```ts
+// 宣言した binding 名がそのまま env のキーになる
+export default {
+  async fetch(request, env, ctx) {
+    const value = await env.DEMO_KV.get("greeting");
+    return new Response(value ?? "(empty)");
+  },
+};
+```
+
+<Callout type="info" title="型は typegen で生成">
+  `pnpm typegen`(内部的に `wrangler types`)を実行すると、`wrangler.jsonc` の binding 宣言から `Env`
+  型が自動生成されます。設定とコードの型が常に一致するため、binding
+  名のタイプミスをコンパイル時に検出できます。
+</Callout>
+
+## 理解度チェック
+
+<Quiz
+  questions={[
+    {
+      question: "ローカル開発サーバーを起動する Wrangler のコマンドは？",
+      options: ["wrangler start", "wrangler dev", "wrangler serve", "wrangler run"],
+      answer: 1,
+      explanation:
+        "`wrangler dev` がローカルの Miniflare 上で Workers ランタイムをエミュレートして開発サーバーを起動します。",
+    },
+    {
+      question: "KV や R2 などの外部リソースは、Worker のコードからどう参照する？",
+      options: [
+        "接続文字列を環境変数にハードコードする",
+        "binding として宣言し env(c.env)経由で参照する",
+        "グローバル変数として自動的に注入される",
+        "毎回 fetch で REST API を叩く",
+      ],
+      answer: 1,
+      explanation:
+        "wrangler.jsonc で binding を宣言すると、ハンドラーの env(Hono では c.env)経由で型安全に渡されます。",
+    },
+    {
+      question: "compatibility_date の役割として正しいものは？",
+      options: [
+        "Worker の有効期限を表す",
+        "デプロイ可能な最終日を表す",
+        "どの時点の Workers ランタイム挙動を使うかを固定する",
+        "課金の締め日を表す",
+      ],
+      answer: 2,
+      explanation:
+        "compatibility_date はランタイムの挙動をその日付時点に固定します。日付を上げると新挙動を取り込めますが破壊的変更も入り得ます。",
+    },
+  ]}
+/>
+
+<DocLinks
+  links={[
+    {
+      href: "https://developers.cloudflare.com/workers/wrangler/",
+      title: "Wrangler ドキュメント",
+      description: "Wrangler CLI のインストール・コマンド・使い方",
+    },
+    {
+      href: "https://developers.cloudflare.com/workers/wrangler/configuration/",
+      title: "Wrangler Configuration",
+      description: "wrangler.jsonc / wrangler.toml の設定キー一覧",
+    },
+  ]}
+/>

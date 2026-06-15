@@ -1,14 +1,105 @@
-この学習サイト自体が、Cloudflare の様々な機能を組み合わせて構築されたフルスタックアプリケーションです。
+この学習サイト自体が、Cloudflare の各プリミティブを組み合わせて構築されたフルスタックアプリケーションです。教材を読むだけでなく「実際に動いているもの」を題材にできるよう、構成を意図的に Cloudflare スタックで固めています。このレッスンでは全体像を俯瞰します。
 
-## 技術スタックの構成
+## モノレポ構成
 
-- **フロントエンド**: Next.js (App Router) + OpenNext
-- **バックエンド API**: Hono Worker
-- **データベース**: D1 + Drizzle ORM
-- **オブジェクトストレージ**: R2
-- **Durable Objects**: チャット/アラーム等
+リポジトリは pnpm workspace のモノレポで、役割の異なる2つのアプリに分かれています。
+
+- **`apps/web`** — Next.js（App Router）を **OpenNext** で Cloudflare Workers 上にデプロイするフロントエンド兼 BFF。レッスン本文（MDX）の SSG と、Hono による API ルートを担います。
+- **`workers/demos`** — 各 Cloudflare サービスの実デモを提供する独立した **Hono Worker**。KV・R2・D1・Durable Objects・Containers のデモ API を集約します。
+
+```text
+apps/
+  web/        # Next.js + OpenNext (フロント + API)
+workers/
+  demos/      # Hono Worker (デモ API 群)
+```
+
+UI と「本物のサービスを叩くデモ」を別 Worker に分けることで、フロントの SSG/ISR と、状態を持つデモ実行を独立してスケール・デプロイできます。
+
+## OpenNext で Next.js を Workers 上で動かす
+
+Next.js はそのままでは Node.js サーバー前提ですが、**OpenNext の Cloudflare アダプタ**がビルド成果物を Workers ランタイム向けに変換します。これにより、レッスンページは SSG（静的生成）され、エッジから即座に配信されます。
+
+<Callout type="info" title="このサイト自体が教材">
+  あなたが今読んでいるこのページは、MDX
+  をビルド時に静的生成し、Cloudflare のエッジから配信されたものです。進捗管理は Cookie
+  に保存され、デモは後続フェーズで本物の KV / R2 / D1 を実際に叩きます。「読む」と「触る」を同じスタックで体験できます。
+</Callout>
+
+## web ↔ demos を結ぶ Service Binding
+
+`apps/web` から `workers/demos` を呼び出す際は、公開 URL を経由せず **Service Binding** を使います。同一 Cloudflare ネットワーク内で Worker 同士を直接 `fetch` でき、ネットワークの往復やレイテンシ・認証の手間を避けられます。
 
 ```ts
-// Next.js からの Hono 呼び出しイメージ
-const res = await env.DEMOS.fetch(new Request("http://demos/health"));
+// web 側から demos Worker を Service Binding 経由で呼ぶイメージ
+const res = await env.DEMOS.fetch(new Request("https://demos/health"));
+const data = await res.json();
 ```
+
+API を別 Worker に分離する狙いは、(1) フロント配信とデモ実行の責務分割、(2) デモ側だけを独立してデプロイ・スケール可能にすること、(3) 状態を持つ Durable Objects / Containers をデモ Worker に閉じ込めることです。
+
+## 各プリミティブの役割
+
+このサイトが扱う Cloudflare スタックと、それぞれの担当領域は次の通りです。
+
+- **Workers** — エッジでの動的実行基盤（すべての土台）
+- **OpenNext** — Next.js を Workers 上で動かすアダプタ
+- **D1 + Drizzle ORM** — リレーショナル（SQLite）データ。ゲストブック等のデモ
+- **R2** — egress 無料のオブジェクトストレージ
+- **KV** — 低レイテンシで読める結果整合の Key-Value ストア
+- **Durable Objects** — 強整合な状態とインメモリ・ストレージを併せ持つ単位
+- **Containers** — Docker イメージをエッジで実行する計算レイヤー
+- **Flagship** — フィーチャーフラグ・評価システム
+
+## 理解度チェック
+
+<Quiz
+  questions={[
+    {
+      question: "apps/web から workers/demos を呼び出す際に使う仕組みは？",
+      options: [
+        "公開 URL への通常の HTTP リクエスト",
+        "Service Binding 経由の fetch",
+        "共有ファイルシステム",
+        "データベースのポーリング",
+      ],
+      answer: 1,
+      explanation:
+        "Service Binding を使うと、公開 URL を介さず同一ネットワーク内で Worker 同士を直接 fetch できます。",
+    },
+    {
+      question: "Next.js を Cloudflare Workers 上で動かすために使っているものは？",
+      options: ["Vercel Adapter", "OpenNext の Cloudflare アダプタ", "Docker のみ", "素の Node.js サーバー"],
+      answer: 1,
+      explanation:
+        "OpenNext の Cloudflare アダプタが Next.js のビルド成果物を Workers ランタイム向けに変換します。",
+    },
+    {
+      question: "UI 配信とデモ実行を別 Worker(web と demos)に分けている主な理由は？",
+      options: [
+        "Cloudflare の制約で1リポジトリ1 Worker しか作れないため",
+        "責務を分割し、デモ側を独立してデプロイ・スケールできるようにするため",
+        "コストを2倍にするため",
+        "TypeScript が使えないため",
+      ],
+      answer: 1,
+      explanation:
+        "フロント配信と状態を持つデモ実行の責務を分け、デモ Worker を独立してデプロイ・スケールできるようにしています。",
+    },
+  ]}
+/>
+
+<DocLinks
+  links={[
+    {
+      href: "https://opennext.js.org/cloudflare",
+      title: "OpenNext for Cloudflare",
+      description: "Next.js を Cloudflare Workers 上で動かすアダプタ",
+    },
+    {
+      href: "https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/",
+      title: "Service bindings",
+      description: "Worker 間を公開 URL なしで直接呼び出す仕組み",
+    },
+  ]}
+/>
