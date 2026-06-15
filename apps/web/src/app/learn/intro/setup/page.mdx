@@ -21,14 +21,14 @@ npx wrangler deploy
 `wrangler dev` は実際の Cloudflare ネットワークに接続せず、ローカルの **Miniflare** 上で Workers ランタイムをエミュレートして起動します。KV や R2 などのストレージもローカルにシミュレートされるため、ネットワークなしで素早く反復開発できます。
 
 <Callout type="tip" title="ローカルと本番は別世界">
-  `wrangler dev`
-  のローカルストレージは本番リソースとは独立しています。ローカルに put したデータが本番に現れることはなく、その逆もありません。本番データを参照したいときだけ
-  `--remote` を付けて実行します。
+  `wrangler dev` のローカルストレージは本番リソースとは独立しています。ローカルに put
+  したデータが本番に現れることはなく、その逆もありません。本番データを参照したいときだけ `--remote`
+  を付けて実行します。
 </Callout>
 
 ## 設定ファイル wrangler.jsonc
 
-Worker の構成は `wrangler.jsonc`（JSON with Comments。従来の `wrangler.toml` でも可）に集約します。最小構成は次の3つのキーです。
+Worker の構成は `wrangler.jsonc`（JSON with Comments。従来の `wrangler.toml` でも可）に集約します。最小構成は `name` / `main` / `compatibility_date` の3キーで、これに加えて Node.js 互換のための `compatibility_flags` を指定しています。
 
 ```jsonc
 {
@@ -67,8 +67,9 @@ export default {
 ```
 
 <Callout type="info" title="型は typegen で生成">
-  `pnpm typegen`(内部的に `wrangler types`)を実行すると、`wrangler.jsonc` の binding 宣言から
-  `Env` 型が自動生成されます。設定とコードの型が常に一致するため、binding 名のタイプミスをコンパイル時に検出できます。
+  `pnpm typegen`(内部的に `wrangler types`)を実行すると、`wrangler.jsonc` の binding 宣言から `Env`
+  型が自動生成されます。設定とコードの型が常に一致するため、binding
+  名のタイプミスをコンパイル時に検出できます。
 </Callout>
 
 ## 理解度チェック
