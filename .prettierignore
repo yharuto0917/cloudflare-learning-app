@@ -9,3 +9,7 @@ package-lock.json
 # wrangler types で生成される型定義(タブ整形のため除外)
 apps/web/cloudflare-env.d.ts
 workers/demos/worker-configuration.d.ts
+
+# drizzle-kit generate が機械生成・再生成するマイグレーション journal/snapshot
+# (整形しても次回 generate で未整形に戻るため除外。SQL 本体は対象外グロブ)
+apps/web/drizzle/meta/
