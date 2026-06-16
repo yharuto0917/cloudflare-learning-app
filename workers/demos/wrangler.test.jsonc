@@ -1,6 +1,10 @@
 /**
- * For more details on how to configure Wrangler, refer to:
- * https://developers.cloudflare.com/workers/wrangler/configuration/
+ * vitest-pool-workers 専用の wrangler 設定。
+ *
+ * なぜ分離するか: vitest-pool-workers(workerd)はローカルで Container を起動できないため、
+ * 次 Issue(P3-4)で wrangler.jsonc に追加する `containers` / DemoContainer は **ここには含めない**。
+ * DO(Counter/ChatRoom/RateLimiter/AlarmClock)はローカル実行可能なので、テストに必要な
+ * bindings と migrations のみをここに保持する。P3-3 時点では本番 wrangler.jsonc と同内容。
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
@@ -8,12 +12,6 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-06-11",
   "compatibility_flags": ["nodejs_compat"],
-  "observability": {
-    "enabled": true
-  },
-  "dev": {
-    "port": 8787
-  },
   "vars": {
     "ALLOWED_ORIGINS": "http://localhost:3000,http://localhost:8787"
   },
@@ -25,8 +23,6 @@
       { "name": "ALARM_CLOCK", "class_name": "AlarmClock" }
     ]
   },
-  // SQLite ストレージ DO は new_sqlite_classes で宣言する。
-  // Container 用 DemoContainer は次 Issue(P3-4)で同 migration の別タグに追加する。
   "migrations": [
     {
       "tag": "v1",
