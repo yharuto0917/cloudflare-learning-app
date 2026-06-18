@@ -4,7 +4,8 @@ export default defineWorkersConfig({
   test: {
     poolOptions: {
       workers: {
-        wrangler: { configPath: "./wrangler.jsonc" },
+        // Container を含まないテスト専用設定を参照(P3-4 で wrangler.jsonc に containers が入るため)。
+        wrangler: { configPath: "./wrangler.test.jsonc" },
       },
     },
   },
