@@ -1,6 +1,12 @@
 import { Hono } from "hono";
+import type { AppEnv } from "@/lib/vid";
+import { requireVid } from "@/lib/vid";
+import { passthrough } from "@/server/proxy";
 
-// Containers デモ(demos worker 側へプロキシ予定)。骨格のみ。本実装は P3-4 / P3-5。
-export const containerRoutes = new Hono<{ Bindings: CloudflareEnv }>();
+/**
+ * Containers デモ。demos worker の `/container/*` へ vid を付けてパススルーする。
+ */
+export const containerRoutes = new Hono<AppEnv>();
 
-containerRoutes.all("*", (c) => c.json({ error: "not_implemented", demo: "container" }, 501));
+containerRoutes.use("*", requireVid);
+containerRoutes.all("/*", (c) => passthrough(c, "/api/demos/container", "/container"));

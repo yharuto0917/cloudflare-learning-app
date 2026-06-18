@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { miscRoutes } from "@/server/routes/misc";
+import { miscRoutes, demoMiscRoutes } from "@/server/routes/misc";
 import { kvRoutes } from "@/server/routes/kv";
 import { r2Routes } from "@/server/routes/r2";
 import { d1Routes } from "@/server/routes/d1";
@@ -21,6 +21,7 @@ app.route("/demos/d1", d1Routes);
 app.route("/demos/do", doRoutes);
 app.route("/demos/container", containerRoutes);
 app.route("/demos/flagship", flagshipRoutes);
+app.route("/demos/misc", demoMiscRoutes); // /api/demos/misc/{request-info,waituntil,revalidate}
 
 // hono/vercel の handle() は env を渡さないため使わない。
 // OpenNext の getCloudflareContext() から env/ctx を取り出して app.fetch に渡す。
