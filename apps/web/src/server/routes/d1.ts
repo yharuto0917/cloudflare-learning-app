@@ -27,7 +27,7 @@ d1Routes.get("/guestbook", async (c) => {
   const rows = await db
     .select()
     .from(guestbookEntries)
-    .orderBy(desc(guestbookEntries.createdAt))
+    .orderBy(desc(guestbookEntries.id))
     .limit(20);
   return c.json({
     entries: rows.map((r) => ({
@@ -74,7 +74,7 @@ d1Routes.post("/guestbook", rateLimit("d1-write", 10, 60), async (c) => {
     .select({ id: guestbookEntries.id })
     .from(guestbookEntries)
     .where(eq(guestbookEntries.vid, vid))
-    .orderBy(desc(guestbookEntries.createdAt));
+    .orderBy(desc(guestbookEntries.id));
   if (own.length > MAX_ENTRIES_PER_VID) {
     const staleIds = own.slice(MAX_ENTRIES_PER_VID).map((r) => r.id);
     await db.delete(guestbookEntries).where(inArray(guestbookEntries.id, staleIds));

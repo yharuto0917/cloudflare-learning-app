@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { byteLength, clampInt } from "./util";
+import { byteLength, clampInt, parseRange } from "./util";
 
 describe("clampInt", () => {
   it("範囲内はそのまま整数化する", () => {
@@ -31,5 +31,28 @@ describe("byteLength", () => {
 
   it("ArrayBuffer は byteLength を返す", () => {
     expect(byteLength(new ArrayBuffer(16))).toBe(16);
+  });
+});
+
+describe("parseRange", () => {
+  it("bytes=a-b を {offset,length} に変換する", () => {
+    expect(parseRange("bytes=0-3")).toEqual({ offset: 0, length: 4 });
+    expect(parseRange("bytes=10-19")).toEqual({ offset: 10, length: 10 });
+  });
+
+  it("bytes=a- は {offset} のみ(末尾まで)", () => {
+    expect(parseRange("bytes=5-")).toEqual({ offset: 5 });
+  });
+
+  it("bytes=-N は {suffix}(末尾 N バイト)", () => {
+    expect(parseRange("bytes=-100")).toEqual({ suffix: 100 });
+  });
+
+  it("未指定・不正・全体指定は undefined(=レンジ無し)", () => {
+    expect(parseRange(undefined)).toBeUndefined();
+    expect(parseRange("")).toBeUndefined();
+    expect(parseRange("bytes=-")).toBeUndefined();
+    expect(parseRange("items=0-3")).toBeUndefined();
+    expect(parseRange("bytes=abc")).toBeUndefined();
   });
 });

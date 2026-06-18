@@ -3,6 +3,7 @@ import { AwsClient } from "aws4fetch";
 import type { AppEnv } from "@/lib/vid";
 import { requireVid } from "@/lib/vid";
 import { rateLimit } from "@/lib/rate-limit";
+import { parseRange } from "@/server/util";
 
 /**
  * R2(DEMO_BUCKET)デモ。すべて `demo/{vid}/` prefix に閉じる。
@@ -21,23 +22,6 @@ r2Routes.use("*", requireVid);
 function fullKey(vid: string, name: string | undefined): string | null {
   if (!name || !NAME_RE.test(name)) return null;
   return `${PREFIX(vid)}${name}`;
-}
-
-/**
- * Range ヘッダを R2Range(POJO)へパースする。
- * 注意: `c.req.raw.headers`(Headers オブジェクト)をそのまま R2 の range に渡すと、
- * OpenNext の binding プロキシが devalue で引数を直列化できず 500 になる。必ず POJO 化する。
- */
-function parseRange(header: string | undefined): R2Range | undefined {
-  if (!header) return undefined;
-  const m = /^bytes=(\d*)-(\d*)$/.exec(header.trim());
-  if (!m) return undefined;
-  const [, startStr, endStr] = m;
-  if (startStr === "" && endStr === "") return undefined;
-  if (startStr === "") return { suffix: Number(endStr) }; // 末尾 N バイト
-  const offset = Number(startStr);
-  if (endStr === "") return { offset }; // offset 以降すべて
-  return { offset, length: Number(endStr) - offset + 1 };
 }
 
 // 一覧(prefix 強制 + メタデータ込み)。
