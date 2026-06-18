@@ -1,6 +1,14 @@
 import { Hono } from "hono";
+import type { AppEnv } from "@/lib/vid";
+import { requireVid } from "@/lib/vid";
+import { passthrough } from "@/server/proxy";
 
-// Durable Objects デモ(demos worker 側へプロキシ予定)。骨格のみ。本実装は P3-3 / P3-5。
-export const doRoutes = new Hono<{ Bindings: CloudflareEnv }>();
+/**
+ * Durable Objects デモ。demos worker の `/do/*` へ vid を付けてパススルーする。
+ * (WebSocket(/do/chat/:room/ws)は service binding 経由で upgrade できないため、
+ *  UI からは demos worker の公開ホストへ直接接続する。ここでは HTTP のみ中継。)
+ */
+export const doRoutes = new Hono<AppEnv>();
 
-doRoutes.all("*", (c) => c.json({ error: "not_implemented", demo: "do" }, 501));
+doRoutes.use("*", requireVid);
+doRoutes.all("/*", (c) => passthrough(c, "/api/demos/do", "/do"));
