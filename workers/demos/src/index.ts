@@ -1,12 +1,14 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { doRoutes } from "./routes/do";
+import { containerRoutes } from "./routes/container";
 
-// Durable Object クラスは Worker のエントリから export する必要がある(wrangler が解決する)。
+// Durable Object / Container クラスは Worker のエントリから export する必要がある(wrangler が解決する)。
 export { Counter } from "./durable-objects/counter";
 export { ChatRoom } from "./durable-objects/chat-room";
 export { RateLimiter } from "./durable-objects/rate-limiter";
 export { AlarmClock } from "./durable-objects/alarm-clock";
+export { DemoContainer } from "./demo-container";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -29,5 +31,6 @@ app.get("/health", (c) => {
 });
 
 app.route("/do", doRoutes);
+app.route("/container", containerRoutes);
 
 export default app;

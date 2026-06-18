@@ -22,15 +22,30 @@
       { "name": "COUNTER", "class_name": "Counter" },
       { "name": "CHAT_ROOM", "class_name": "ChatRoom" },
       { "name": "RATE_LIMITER", "class_name": "RateLimiter" },
-      { "name": "ALARM_CLOCK", "class_name": "AlarmClock" }
+      { "name": "ALARM_CLOCK", "class_name": "AlarmClock" },
+      { "name": "DEMO_CONTAINER", "class_name": "DemoContainer" }
     ]
   },
-  // SQLite ストレージ DO は new_sqlite_classes で宣言する。
-  // Container 用 DemoContainer は次 Issue(P3-4)で同 migration の別タグに追加する。
+  // Container は Durable Object の一種。イメージは Dockerfile を指定し、wrangler がビルド/配布する。
+  // lite = 1/16 vCPU / 256MiB / 2GB disk(デモに十分)。
+  "containers": [
+    {
+      "class_name": "DemoContainer",
+      "image": "./container/Dockerfile",
+      "max_instances": 5,
+      "instance_type": "lite"
+    }
+  ],
+  // SQLite ストレージ DO/Container は new_sqlite_classes で宣言する。
+  // DemoContainer は v1 適用後に追加するため、別タグ v2 で宣言する(適用済み migration は不変が原則)。
   "migrations": [
     {
       "tag": "v1",
       "new_sqlite_classes": ["Counter", "ChatRoom", "RateLimiter", "AlarmClock"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["DemoContainer"]
     }
   ]
 }
