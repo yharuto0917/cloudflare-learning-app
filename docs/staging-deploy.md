@@ -32,11 +32,11 @@ wrangler d1 create cf-stack-lab
 
 `apps/web/wrangler.jsonc` のプレースホルダを置き換えます。
 
-| 項目 | 置換前(プレースホルダ) | 置換後 |
-|---|---|---|
-| `kv_namespaces[DEMO_KV].id` | `placeholder-demo-kv` | KV の id |
-| `d1_databases[DB].database_id` | `placeholder-d1-database` | D1 の database_id |
-| `d1_databases[NEXT_TAG_CACHE_D1].database_id` | `placeholder-d1-database` | 同上(同一 DB) |
+| 項目                                          | 置換前(プレースホルダ)    | 置換後            |
+| --------------------------------------------- | ------------------------- | ----------------- |
+| `kv_namespaces[DEMO_KV].id`                   | `placeholder-demo-kv`     | KV の id          |
+| `d1_databases[DB].database_id`                | `placeholder-d1-database` | D1 の database_id |
+| `d1_databases[NEXT_TAG_CACHE_D1].database_id` | `placeholder-d1-database` | 同上(同一 DB)     |
 
 R2 バケット名(`cf-stack-lab`)は作成済みのため変更不要。
 反映後に型を再生成:
