@@ -22,32 +22,49 @@ function containerRequest(path: string, init?: RequestInit): Request {
   return new Request(`http://container${path}`, init);
 }
 
+/** コンテナ起動/通信失敗時の共通レスポンス(コールドスタート失敗などを裸の500にしない)。 */
+function containerError(c: Context<{ Bindings: Env }>, err: unknown) {
+  return c.json({ error: "container_unavailable", message: String(err) }, 502);
+}
+
 export const containerRoutes = new Hono<{ Bindings: Env }>();
 
 // ---- /info: 指定インスタンスのコンテナ情報(初回はイメージビルド+コールドスタート) ----
 containerRoutes.get("/info", async (c) => {
   const name = getName(c);
   if (!name) return unknownName(c);
-  // Container.fetch は未起動なら自動で起動しポート待機する(startAndWaitForPorts 相当)。
-  const res = await getContainer(c.env.DEMO_CONTAINER, name).fetch(containerRequest("/info"));
-  return c.json({ name, info: await res.json() });
+  try {
+    // Container.fetch は未起動なら自動で起動しポート待機する(startAndWaitForPorts 相当)。
+    const res = await getContainer(c.env.DEMO_CONTAINER, name).fetch(containerRequest("/info"));
+    return c.json({ name, info: await res.json() });
+  } catch (err) {
+    return containerError(c, err);
+  }
 });
 
 // ---- /state: DO 視点のコンテナ状態 + ライフサイクルイベントログ ----
 containerRoutes.get("/state", async (c) => {
   const name = getName(c);
   if (!name) return unknownName(c);
-  const stub = getContainer(c.env.DEMO_CONTAINER, name);
-  // getState はコンテナを起動しない(状態照会のみ)。events は DO storage から読む。
-  const [state, events] = await Promise.all([stub.getState(), stub.events()]);
-  return c.json({ name, state, events });
+  try {
+    const stub = getContainer(c.env.DEMO_CONTAINER, name);
+    // getState はコンテナを起動しない(状態照会のみ)。events は DO storage から読む。
+    const [state, events] = await Promise.all([stub.getState(), stub.events()]);
+    return c.json({ name, state, events });
+  } catch (err) {
+    return containerError(c, err);
+  }
 });
 
 // ---- /pool: N台へランダム分散し、どのインスタンスが応答したか(instanceId)を表示 ----
 containerRoutes.get("/pool", async (c) => {
-  const stub = await getRandom(c.env.DEMO_CONTAINER, POOL_SIZE);
-  const res = await stub.fetch(containerRequest("/info"));
-  return c.json({ poolSize: POOL_SIZE, info: await res.json() });
+  try {
+    const stub = await getRandom(c.env.DEMO_CONTAINER, POOL_SIZE);
+    const res = await stub.fetch(containerRequest("/info"));
+    return c.json({ poolSize: POOL_SIZE, info: await res.json() });
+  } catch (err) {
+    return containerError(c, err);
+  }
 });
 
 // ---- /files: ephemeral disk への書き込み/一覧(destroy で消えることを示す) ----
@@ -55,27 +72,35 @@ containerRoutes.post("/files", async (c) => {
   const name = getName(c);
   if (!name) return unknownName(c);
   const body = await c.req.text();
-  const res = await getContainer(c.env.DEMO_CONTAINER, name).fetch(
-    containerRequest("/files", {
-      method: "POST",
+  try {
+    const res = await getContainer(c.env.DEMO_CONTAINER, name).fetch(
+      containerRequest("/files", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      })
+    );
+    return new Response(res.body, {
+      status: res.status,
       headers: { "Content-Type": "application/json" },
-      body,
-    })
-  );
-  return new Response(res.body, {
-    status: res.status,
-    headers: { "Content-Type": "application/json" },
-  });
+    });
+  } catch (err) {
+    return containerError(c, err);
+  }
 });
 
 containerRoutes.get("/files", async (c) => {
   const name = getName(c);
   if (!name) return unknownName(c);
-  const res = await getContainer(c.env.DEMO_CONTAINER, name).fetch(containerRequest("/files"));
-  return new Response(res.body, {
-    status: res.status,
-    headers: { "Content-Type": "application/json" },
-  });
+  try {
+    const res = await getContainer(c.env.DEMO_CONTAINER, name).fetch(containerRequest("/files"));
+    return new Response(res.body, {
+      status: res.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    return containerError(c, err);
+  }
 });
 
 // ---- /stop: SIGTERM でグレースフル停止 ----

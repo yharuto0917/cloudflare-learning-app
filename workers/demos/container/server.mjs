@@ -49,8 +49,9 @@ function readBody(req, limit) {
 }
 
 const server = createServer(async (req, res) => {
-  requestCount += 1;
   const { pathname } = new URL(req.url, `http://localhost:${PORT}`);
+  // 健全性プローブ(pingEndpoint=/healthz)は「実リクエスト数」に数えない。
+  if (pathname !== "/healthz") requestCount += 1;
 
   try {
     // ヘルスチェック(pingEndpoint 兼用)。

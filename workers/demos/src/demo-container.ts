@@ -26,6 +26,11 @@ export class DemoContainer extends Container<Env> {
   defaultPort = 8080;
   /** デモ用に短く設定(コスト対策。既定は長め)。 */
   sleepAfter = "2m";
+  /**
+   * 健全性チェック(ポート待機)の宛先。基底は `http://${pingEndpoint}` を組むため先頭スラッシュ無し。
+   * 既定 'ping' は server.mjs では 404 になり requestCount を汚すため、専用の /healthz に向ける。
+   */
+  pingEndpoint = "ping/healthz";
 
   /** コンテナ起動成功時。 */
   override onStart(): void {
@@ -37,10 +42,13 @@ export class DemoContainer extends Container<Env> {
     this.record("stop", `exitCode=${params.exitCode}, reason=${params.reason}`);
   }
 
-  /** コンテナ起動失敗/クラッシュ時。メッセージを記録しつつ元のエラーは伝播させる。 */
-  override onError(error: unknown): unknown {
+  /**
+   * コンテナ起動失敗/クラッシュ時の通知フック。発火を記録するのみ。
+   * 戻り値・throw とも基底フレームワークに無視される(実際のエラー伝播/リトライは基底が制御)ため、
+   * ここでは記録だけ行い何も返さない。
+   */
+  override onError(error: unknown): void {
     this.record("error", error instanceof Error ? error.message : String(error));
-    return error;
   }
 
   /** ライフサイクルイベントログ(新しい順・最大 MAX_EVENTS 件)を返す RPC。 */
